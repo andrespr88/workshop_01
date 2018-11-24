@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Formulario</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO"
+    crossorigin="anonymous">
+</head>
+
+<body>
+
+  <div class="container-fluid">
+    <div class="row">
+      <header class="col-12">
+        <h1 class="text-center">Workshop</h1>
+      </header>
+
+      <div class="col-md-6 order-2 order-md-1">
+        <h4 class="text-center">Lista de Alumnos</h4>
+        <ul id="listaPrincipal" class="list-group"></ul>
+      </div>
+
+      <div class="col-md-6 order-1 order-md-2">
+        <h4 class="text-center">Ingreso de Datos</h4>
+
+        <form action="" id="formularioAgregar" class="form-row">
+          <div class="form-group col-md-6">
+            <input type="text" class="form-control" id="inputNombre" placeholder="Nombre" name="nombre" required>
+          </div>
+          <div class="form-group col-md-6">
+            <input type="text" class="form-control" id="inputApellido" placeholder="Apellido" name="apellido">
+          </div>
+          <div class="form-group col-md-6">
+            <input type="number" class="form-control" id="inputDni" placeholder="DNI" name="dni" aria-describedby="dniHelp" required>            
+            <small id="dniHelp" class="form-text text-muted"></small>
+          </div>
+          <div class="form-group col-md-6">
+            <input type="email" class="form-control" id="inputEmail" placeholder="Email" name="email" aria-describedby="emailHelp" required>
+            <small id="emailHelp" class="form-text text-muted"></small>
+          </div>
+          <div class="form-group col">
+            <input type="button" class="btn btn-block btn-primary" id="agregarAlumno" value="Agregar alumno">
+            <input type="button" class="btn btn-block btn-primary d-none" id="modificarAlumno" value="Modificar alumno">
+          </div>
+        </form>
+
+        <form action="" class="form-row">
+          <div class="form-group col-md-6">
+            <input type="text" class="form-control" id="inputEliminarDni" placeholder="DNI" name="dni" required>
+          </div>
+          <div class="form-group col-md-6">
+            <input type="submit" class="btn btn-danger btn-block" id="eliminarAlumno" value="Eliminar alumno">
+          </div>
+        </form>
+
+        <div class="form-row">
+          <div class="form-group col-md-6">
+            <input type="text" class="form-control" id="inputBuscarNombre"placeholder="Nombre" name="nombre" aria-describedby="nombreHelp" required>
+            <small id="nombreHelp" class="form-text text-muted"></small>
+          </div>
+          <div class="form-group col-md-6">
+            <input type="button" class="btn btn-success btn-block" id="buscarAlumno" value="Buscar alumno">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <ul id="listaNotas" class="list-group col"></ul>     
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <script src="js/main.js"></script>
+
+</body>
+
+</html>
