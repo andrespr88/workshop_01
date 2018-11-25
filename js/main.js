@@ -82,13 +82,18 @@ function validarEmail() {
 }
 
 function validarDni () {
-    var test = false;
     var dni = this.value.trim();
-    //verifico que dni sea un numero, que sea positivo y que no exista otro alumno con ese dni 
-    if (parseInt(dni) > 0 && buscarAlumnoDni(dni) == -1 && dni.length == 8){
-        test = true;
-        document.getElementById("dniHelp").innerText = "";                
-    } else document.getElementById("dniHelp").innerText = "Debe contener 8 caracteres y no debe coincidir con ningun dni de la lista"
+    //compruebo que sea un numero entero y positivo
+    var test = /^\d+$/g.test(dni);
+    if (!test){
+        document.getElementById("dniHelp").innerText = "Ingrese un número entero y positivo"; 
+    } else if (dni.length != 8){
+        test = false;
+        document.getElementById("dniHelp").innerText = "Ingrese un número de 8 dígitos";
+    } else if (buscarAlumnoDni(dni) != -1) {
+        test = false;
+        document.getElementById("dniHelp").innerText = "El Dni ingresado coincide con el de otro alumno";
+    } else document.getElementById("dniHelp").innerText = "";  
     agregarClase (this, test);
     validarBotonAgregar();
 }
@@ -338,12 +343,15 @@ function validarModificarDni () {
     var dni = document.querySelectorAll("#listaPrincipal li.active")[0].id;
     //busco la posicion del alumno en el vector del localStorage
     var posicion = buscarAlumnoDni(dni);
-    var inputDni = document.getElementById("inputDni");
     //busco si existe algun alumno con el dni obtenido del inputDni
-    var posicion2 = buscarAlumnoDni(inputDni.value.trim());
-    //si (el inputDni no esta vacio && (no coincide con los otros dni || coincide con el mismo alumno que estoy modificando)) le agrego la clase "is-valid", si no, agrego la clase "is-invalid"
-    var condicion = inputDni.value.trim() && (posicion2 == -1 || posicion == posicion2);
-    agregarClase(inputDni,condicion);
+    var posicion2 = buscarAlumnoDni(this.value.trim());
+    //compruebo que sea un número entero y positivo
+    var test = /^\d+$/g.test(this.value);
+    //si (el inputDni es un entero positivo && (no coincide con los otros dni || coincide con el del mismo alumno que estoy modificando)) le agrego la clase "is-valid", si no, agrego la clase "is-invalid"
+    var condicion = test && this.value.trim().length == 8 && (posicion2 == -1 || posicion == posicion2);
+    agregarClase(this,condicion);
+    //si no es valido, muestro una ayuda
+    (condicion) ? document.getElementById("dniHelp").innerText = "" : document.getElementById("dniHelp").innerText = "Ingrese un número de 8 dígitos, no debe coincidir con el dni de otro alumno";
     validarBotonAgregar();
 }
 
