@@ -208,22 +208,25 @@ function agregarNotas(alumno){
         if (i !=0 && i % 3==0){
             liNotas += '</div><div class="input-group">';
         }
-        liNotas += '<div class="col-4"><input type="number" class="form-control form-control-sm" onkeyup="validarNota()" value="'+vectorNotas[i]+'"></div>';
+        liNotas += '<div class="col-4"><input type="number" class="form-control form-control-sm" onkeyup="validarNota('+JSON.stringify(alumno).replace(/"/g,"'")+')" value="'+vectorNotas[i]+'"></div>';
         //cuando llega a la ultima nota del vector, cierro las etiquetas
         if (i == vectorNotas.length - 1) 
             liNotas += '</div></li>';
     } 
     //muestro el input para agregar una nota nueva y el boton para actualizarlas
     listaNotas.innerHTML += liNotas +
-        '<li class="list-group-item"><div class="row"><div class="col-6"><input class="form-control form-control" type="number" id="inputNota" onkeyup="validarNota()" placeholder="Nueva nota"></div>'+
+        '<li class="list-group-item"><div class="row"><div class="col-6"><input class="form-control form-control" type="number" id="inputNota" onkeyup="validarNota('+JSON.stringify(alumno).replace(/"/g,"'")+')" placeholder="Nueva nota"></div>'+
         '<div class="col-6"><input type="button" class="form-control btn btn-block btn-success" value="Actualizar Notas" onclick="actualizarNotas('+JSON.stringify(alumno).replace(/"/g,"'")+')"></div></div></li>'; 
 }
 
 //cuando la nota este entre 0 y 10 agrega la clase "is-valid", si no, la clase "is-invalid"
-function validarNota() {
+function validarNota(alumno) {
     var nota = parseFloat(event.target.value.trim());
     var test = (nota >= 0 && nota <=10);
     agregarClase(event.target, test);
+    if (event.which == 13){
+        actualizarNotas(alumno);
+    }
 }
 
 function actualizarNotas(alumno){
@@ -281,6 +284,40 @@ function eliminarAlumno () {
     }
 }
 
+//recibe un objeto alumno y muestra sus datos en los inputs del formulario
+function mostrarAlumnoFormulario(alumno) {
+    resetearFormulario(document.getElementById("formularioAgregar"));
+    //si hay coincidencia, muestro los datos en los inputs
+    document.getElementById("inputDni").value = alumno.dni;
+    document.getElementById("inputNombre").value = alumno.nombre;
+    document.getElementById("inputApellido").value = alumno.apellido;
+    document.getElementById("inputEmail").value = alumno.email;
+    //le agrego la clase "is-valid" a los inputs, para que se habilite el boton sin la necesidad de andar entrando a cada input y presionando alguna tecla (las validaciones estan asociadas al evento keyup)
+    agregarClase(document.getElementById("inputNombre"), true);
+    agregarClase(document.getElementById("inputDni"), true);
+    agregarClase(document.getElementById("inputEmail"), true);
+}
+
+//recibe un nombre y un vector de alumnos, busca coincidencias parciales en el nombre y apellido de los alumnos del vector, si lo encuentra, lo activa en el acordeon y llama a la funcion mostrarAlumnoFormulario
+function alumnoExiste (nombre, vectorAlumnos) {
+    var nombreVector
+    var apellidoVector
+    for (var i = 0; i < vectorAlumnos.length; i++) {
+        nombreVector = vectorAlumnos[i].nombre.toLowerCase();
+        apellidoVector = vectorAlumnos[i].apellido.toLowerCase();
+        //comparo el nombre del input con el nombre y el apellido de cada alumno
+        if (nombreVector.indexOf(nombre) !== -1 || apellidoVector.indexOf(nombre) !== -1){
+            mostrarAlumnoFormulario(vectorAlumnos[i]);
+            //selecciono el alumno para que se visualice en el acordeon
+            var lista = document.getElementById("listaPrincipal").getElementsByTagName("li");
+            //agrego la clase active (esto lo usaba para bootstrap, pero lo dejo para poder encontrar al alumno sin usar una variable global)
+            lista[i].classList.add("active");
+            return true;            
+        }
+    }
+    return false;
+}
+
 function buscarAlumnoNombre () {    
     //objeto html donde voy a infomar al usuario si no se encontró el alumno
     var nombreAyuda = document.getElementById("nombreHelp");
@@ -295,43 +332,24 @@ function buscarAlumnoNombre () {
     if (nombre.length >= 3){
         //obtengo el vector de alumnos del localStorage
         var vectorAlumnos = getLocalList("alumnosLocal");
-        var nombreVector
-        var apellidoVector
-        for (var i = 0; i < vectorAlumnos.length; i++) {
-            nombreVector = vectorAlumnos[i].nombre.toLowerCase();
-            apellidoVector = vectorAlumnos[i].apellido.toLowerCase();
-            //comparo el nombre del input con el nombre y el apellido de cada alumno
-            if (nombreVector.indexOf(nombre) !== -1 || apellidoVector.indexOf(nombre) !== -1){
-                //si hay coincidencia, muestro los datos en los inputs
-                var inputDni = document.getElementById("inputDni");
-                inputDni.value = vectorAlumnos[i].dni;
-                document.getElementById("inputNombre").value = vectorAlumnos[i].nombre;
-                document.getElementById("inputApellido").value = vectorAlumnos[i].apellido;
-                document.getElementById("inputEmail").value = vectorAlumnos[i].email;
-                //oculto el boton agregar
-                var botonAgregarAlumno = document.getElementById("agregarAlumno");
-                botonAgregarAlumno.classList.add("d-none");
-                //muestro el boton modificar
-                var botonModificarAlumno = document.getElementById("modificarAlumno");
-                botonModificarAlumno.classList.remove("d-none");
-                //agrego el evento al boton modificar
-                botonModificarAlumno.addEventListener("click", modificarAlumno);
-                //le agrego la clase "is-valid" a los inputs, para que se habilite el boton sin la necesidad de andar entrando a cada input y presionando alguna tecla (las validaciones estan asociadas al evento keyup)
-                agregarClase(document.getElementById("inputNombre"),true);
-                agregarClase(document.getElementById("inputDni"),true);
-                agregarClase(document.getElementById("inputEmail"),true);
-                inputDni.removeEventListener("keyup", validarDni);
-                inputDni.addEventListener("keyup", validarModificarDni);
-                //pinto la ficha del alumno buscado
-                var lista = document.getElementById("listaPrincipal").getElementsByTagName("li");
-                lista[i].classList.add("active");
-                //reseteo el campo que indica que no se encontró el alumno
-                nombreAyuda.innerText = "";
-                inputBuscar.value = "";                
-                return 
-            }         
-        }
-        nombreAyuda.innerText = "No se encontró el alumno";
+        if (alumnoExiste(nombre, vectorAlumnos)) {
+            //oculto el boton agregar
+            var botonAgregarAlumno = document.getElementById("agregarAlumno");
+            botonAgregarAlumno.classList.add("d-none");
+            //muestro el boton modificar
+            var botonModificarAlumno = document.getElementById("modificarAlumno");
+            botonModificarAlumno.classList.remove("d-none");
+            //agrego el evento al boton modificar
+            botonModificarAlumno.addEventListener("click", modificarAlumno);
+            //cambio la funcion que valida el #inputDni
+            var inputDni = document.getElementById("inputDni");
+            inputDni.removeEventListener("keyup", validarDni);
+            inputDni.addEventListener("keyup", validarModificarDni);
+            //reseteo el campo que indica que no se encontró el alumno
+            nombreAyuda.innerText = "";
+            inputBuscar.value = "";
+            return 
+        } else nombreAyuda.innerText = "No se encontró el alumno";
     } else {
         nombreAyuda.innerText = "Debe ingresar 3 caracteres como mínimo";
     }
