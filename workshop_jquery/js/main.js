@@ -11,6 +11,7 @@ $(document).ready(function () {
     $("#eliminarAlumno").attr("disabled", true);
     $("#inputBuscarNombre").on("keyup", validarBuscarEnter);
     $("#buscarAlumno").on("click", buscarAlumnoNombre);
+    $("#modificarAlumno").on("click", modificarAlumno);
 
 });
 
@@ -46,18 +47,18 @@ function crearNodo(nuevoAlumno) {
 function agregarClase(obj, condicion) {
     if (condicion) {
         //le saco la clase "is-invalid", en caso que no la tenga, no rompe ni hace nada        
-        obj.classList.remove("is-invalid");
-        obj.classList.add("is-valid");
+        obj.addClass("is-valid");
+        obj.removeClass("is-invalid");
     } else {
-        obj.classList.remove("is-valid");
-        obj.classList.add("is-invalid");
+        obj.removeClass("is-valid");
+        obj.addClass("is-invalid");
     }
 }
 
 
 function validarNombre() {
     //si el nombre es un string vacio, lo toma como falso
-    agregarClase(this, this.value.trim());
+    agregarClase($(this), $(this).val().trim());
     var valido=validarBotonAgregar();
     if (event.which == 13 && valido){
         //disparo la funcion del boton que no tenga la clase .d-none
@@ -72,8 +73,8 @@ function validarNombre() {
 
 function validarEmail() {
     //verifica que tenga: string + "@" + string + "." + string de min 2 y max 4 caracteres 
-    var test = /^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})$/.test(this.value);
-    agregarClase(this, test);
+    var test = /^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})$/.test($(this).val());
+    agregarClase($(this), test);
     (test) ? document.getElementById("emailHelp").innerText = "" : document.getElementById("emailHelp").innerText = "Ejemplo: usuario@ejemplo.com";
     var valido=validarBotonAgregar();
     if (event.which == 13 && valido){
@@ -88,7 +89,7 @@ function validarEmail() {
 }
 
 function validarDni () {
-    var dni = this.value.trim();
+    var dni = $(this).val().trim();
     //compruebo que sea un numero entero y positivo
     var test = /^\d+$/g.test(dni);
     if (!test){
@@ -100,7 +101,7 @@ function validarDni () {
         test = false;
         document.getElementById("dniHelp").innerText = "El Dni ingresado coincide con el de otro alumno";
     } else document.getElementById("dniHelp").innerText = "";  
-    agregarClase (this, test);
+    agregarClase ($(this), test);
     var valido=validarBotonAgregar();
     if (event.which == 13 && valido){
         agregarAlumno();
@@ -119,17 +120,16 @@ function buscarAlumnoDni (dni) {
 }
 //comprueba que en el formulario haya 3 inputs con la clase "is-valid", ya que tanto el campo nombre, dni y email tienen que ser validos, solo entonces habilita el boton
 function validarBotonAgregar () {    
-    var formularioAgregar = document.getElementById("formularioAgregar");
-    var inputs = formularioAgregar.getElementsByClassName("is-valid");
-    var botonAgregarAlumno = document.getElementById("agregarAlumno");
-    var botonModificarAlumno = document.getElementById("modificarAlumno"); 
+    var inputs = $("#formularioAgregar .is-valid" );;
+    var botonAgregarAlumno = $("#agregarAlumno");
+    var botonModificarAlumno = $("#modificarAlumno"); 
     if (inputs.length === 3){        
-        botonAgregarAlumno.disabled = false;
-        botonModificarAlumno.disabled = false;
+        botonAgregarAlumno.attr("disabled", false);
+        botonModificarAlumno.attr("disabled", false);
         return true;
     } else {
-        botonAgregarAlumno.disabled = true;
-        botonModificarAlumno.disabled = true;
+        botonAgregarAlumno.attr("disabled", true);
+        botonModificarAlumno.attr("disabled", true);
     }
 }
 
@@ -244,7 +244,7 @@ function mostrarNotas(alumno){
 function validarNota(alumno) {
     var nota = parseFloat(event.target.value.trim());
     var test = (nota >= 0 && nota <=10);
-    agregarClase(event.target, test);
+    agregarClase($(event.target), test);
     if (event.which == 13){
         actualizarNotas(alumno);
     }
@@ -285,14 +285,14 @@ function cerrar () {
 
 //funcion que comprueba y valida que exista un alumno que coincida con el dni ingresado en el input; si existe, agrega la clase "is-valid" al input y habilita el boton, si no, agrega la clase "is-invalid" y deshabilita el boton
 function validarEliminar () {
-    var botonEliminarAlumno = document.getElementById("eliminarAlumno");
+    var botonEliminarAlumno = $("#eliminarAlumno");
     var test = false;
-    var dni = this.value;
+    var dni = $(this).val();
     if (buscarAlumnoDni(dni) != -1){
         test = true;
-        botonEliminarAlumno.disabled = false;
-    } else botonEliminarAlumno.disabled = true;              
-    agregarClase (this, test);
+        botonEliminarAlumno.attr("disabled", false);
+    } else botonEliminarAlumno.attr("disabled", true);              
+    agregarClase ($(this), test);
 }
 
 //obtiene el dni ingresado en el input, busca la posicion del alumno en el vector y lo elimina. Agrega el nuevo vector al localStorage y vuelve a mostrar la lista de alumnos en el html 
@@ -316,9 +316,9 @@ function mostrarAlumnoFormulario(alumno) {
     document.getElementById("inputApellido").value = alumno.apellido;
     document.getElementById("inputEmail").value = alumno.email;
     //le agrego la clase "is-valid" a los inputs, para que se habilite el boton sin la necesidad de andar entrando a cada input y presionando alguna tecla (las validaciones estan asociadas al evento keyup)
-    agregarClase(document.getElementById("inputNombre"), true);
-    agregarClase(document.getElementById("inputDni"), true);
-    agregarClase(document.getElementById("inputEmail"), true);
+    agregarClase($("#inputNombre"), true);
+    agregarClase($("#inputDni"), true);
+    agregarClase($("#inputEmail"), true);
 }
 
 //recibe un nombre y un vector de alumnos, busca coincidencias parciales en el nombre y apellido de los alumnos del vector, si lo encuentra, lo activa en el acordeon y llama a la funcion mostrarAlumnoFormulario
@@ -344,39 +344,37 @@ function alumnoExiste (nombre, vectorAlumnos) {
 
 function buscarAlumnoNombre () {    
     //objeto html donde voy a infomar al usuario si no se encontró el alumno
-    var nombreAyuda = document.getElementById("nombreHelp");
+    var nombreAyuda = $("#nombreHelp");
     //si existe un elemento con clase active en la lista, se la remuevo, ya que si se busca un alumno y luego se busca otro sin haber modificado el primero, quedarian ambos items con la clase active; y necesito que haya solo 1 por vez
     var vector = document.getElementsByClassName("active");
     if (vector.length) 
         vector[0].classList.remove("active");
     //obtengo el nombre del input, lo paso a minuscula y le quito los espacios del principio y del final
-    var inputBuscar = document.getElementById("inputBuscarNombre");
-    var nombre = inputBuscar.value.toLowerCase().trim();
+    var inputBuscar = $("#inputBuscarNombre");
+    var nombre = inputBuscar.val().toLowerCase().trim();
     //verifico que haya ingresado como minimo 3 caracteres
     if (nombre.length >= 3){
         //obtengo el vector de alumnos del localStorage
         var vectorAlumnos = getLocalList("alumnosLocal");
         if (alumnoExiste(nombre, vectorAlumnos)) {
             //oculto el boton agregar
-            var botonAgregarAlumno = document.getElementById("agregarAlumno");
-            botonAgregarAlumno.classList.add("d-none");
+            var botonAgregarAlumno = $("#agregarAlumno");
+            botonAgregarAlumno.addClass("d-none");
             //muestro el boton modificar
-            var botonModificarAlumno = document.getElementById("modificarAlumno");
-            botonModificarAlumno.classList.remove("d-none");
-            //agrego el evento al boton modificar
-            botonModificarAlumno.addEventListener("click", modificarAlumno);
+            var botonModificarAlumno = $("#modificarAlumno");
+            botonModificarAlumno.removeClass("d-none");
             //cambio la funcion que valida el #inputDni
-            var inputDni = document.getElementById("inputDni");
-            inputDni.removeEventListener("keyup", validarDni);
-            inputDni.addEventListener("keyup", validarModificarDni);
+            var inputDni = $("#inputDni");
+            inputDni.off("keyup", validarDni);
+            inputDni.on("keyup", validarModificarDni);
             //reseteo el campo que indica que no se encontró el alumno
-            nombreAyuda.innerText = "";
-            inputBuscar.value = "";
+            nombreAyuda.text("");
+            inputBuscar.val("");
             $("#inputNombre").focus();
             return 
-        } else nombreAyuda.innerText = "No se encontró el alumno";
+        } else nombreAyuda.text("No se encontró el alumno");
     } else {
-        nombreAyuda.innerText = "Debe ingresar 3 caracteres como mínimo";
+        nombreAyuda.text("Debe ingresar 3 caracteres como mínimo");
     }
 }
 
@@ -387,12 +385,12 @@ function validarModificarDni () {
     //busco la posicion del alumno en el vector del localStorage
     var posicion = buscarAlumnoDni(dni);
     //busco si existe algun alumno con el dni obtenido del inputDni
-    var posicion2 = buscarAlumnoDni(this.value.trim());
+    var posicion2 = buscarAlumnoDni($(this).val().trim());
     //compruebo que sea un número entero y positivo
-    var test = /^\d+$/g.test(this.value);
+    var test = /^\d+$/g.test($(this).val());
     //si (el inputDni es un entero positivo && (no coincide con los otros dni || coincide con el del mismo alumno que estoy modificando)) le agrego la clase "is-valid", si no, agrego la clase "is-invalid"
-    var condicion = test && this.value.trim().length == 8 && (posicion2 == -1 || posicion == posicion2);
-    agregarClase(this,condicion);
+    var condicion = test && $(this).val().trim().length == 8 && (posicion2 == -1 || posicion == posicion2);
+    agregarClase($(this),condicion);
     //si no es valido, muestro una ayuda
     (condicion) ? document.getElementById("dniHelp").innerText = "" : document.getElementById("dniHelp").innerText = "Ingrese un número de 8 dígitos, no debe coincidir con el dni de otro alumno";
     var valido=validarBotonAgregar();
@@ -409,28 +407,28 @@ function modificarAlumno () {
     //obtengo los datos de los inputs
     var nombre = document.getElementById("inputNombre").value.trim();
     var apellido = document.getElementById("inputApellido").value.trim();
-    var inputDni = document.getElementById("inputDni");
+    var inputDni = $("#inputDni");
     var email = document.getElementById("inputEmail").value.trim();
     //obtengo el vector de alumnos del localStorage
     var vectorAlumnos = getLocalList("alumnosLocal");
     //obtengo las notas del alumno encontrado
     var notas = vectorAlumnos[posicion].notas;
     //agrego el alumno modificado al vector de alumnos
-    vectorAlumnos[posicion] = new crearAlumno(nombre, apellido, inputDni.value.trim(), email, notas);
+    vectorAlumnos[posicion] = new crearAlumno(nombre, apellido, inputDni.val().trim(), email, notas);
     //agrego el vector al localStorage
     setLocalList("alumnosLocal", vectorAlumnos);
     //muestro el boton agregar
-    var botonAgregarAlumno = document.getElementById("agregarAlumno");
-    botonAgregarAlumno.classList.remove("d-none");
+    var botonAgregarAlumno = $("#agregarAlumno");
+    botonAgregarAlumno.removeClass("d-none");
     //oculto el boton modificar
-    var botonModificarAlumno = document.getElementById("modificarAlumno");
-    botonModificarAlumno.classList.add("d-none");
+    var botonModificarAlumno = $("#modificarAlumno");
+    botonModificarAlumno.addClass("d-none");
     //reseteo los value y las clases del formulario
     var formulario = document.getElementById("formularioAgregar");
     resetearFormulario(formulario);     
     //agrego y remuevo los eventos para que cambie la forma de validar el input 
-    inputDni.removeEventListener("keyup", validarModificarDni);
-    inputDni.addEventListener("keyup", validarDni);        
+    inputDni.off("keyup", validarModificarDni);
+    inputDni.on("keyup", validarDni);        
     //vuelvo a cargar los alumnos en pantalla
     cargaInicial();
     //activo el alumno en el acordeon
