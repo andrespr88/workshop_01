@@ -12,7 +12,6 @@ $(document).ready(function () {
     $("#inputBuscarNombre").on("keyup", validarBuscarEnter);
     $("#buscarAlumno").on("click", buscarAlumnoNombre);
     $("#modificarAlumno").on("click", modificarAlumno);
-
 });
 
 // Carga inicial de los alumnos del local Storage en el html
